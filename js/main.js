@@ -1,3 +1,4 @@
+import { workspaceMarkup, mountWorkspace } from "./workspace.js";
 import { tools, searchTools } from "./tool-registry.js";
 import { resolveRoute } from "./router.js";
 import {
@@ -15,7 +16,8 @@ let prefs = loadPreferences(),
   tab = "Appearance",
   query = "",
   drafts = new Map(),
-  toastTimer;
+  toastTimer,
+  cleanupWorkspace;
 applyPreferences(prefs);
 const app = document.querySelector("#app");
 const navigation = [
@@ -81,6 +83,8 @@ const palette = setupPalette({
   },
 });
 function render(focus = false) {
+  cleanupWorkspace?.();
+  cleanupWorkspace = null;
   route = resolveRoute(location.hash);
   const current = tools.find((t) => t.id === route.id);
   document.title =
@@ -103,7 +107,7 @@ function render(focus = false) {
     navigation.slice(4).map(navItem).join("") +
     '</nav><div class="sidebar-bottom"><div class="local-note">' +
     icon("shield") +
-    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v0.1.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
+    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v0.2.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
     (prefs.sidebarCollapsed ? "Expand" : "Collapse") +
     ' sidebar">' +
     icon("collapse") +
@@ -140,6 +144,14 @@ function render(focus = false) {
       .join("") +
     "</nav>";
   bind();
+  if (current)
+    cleanupWorkspace = mountWorkspace(document.querySelector("main"), {
+      tool: current,
+      prefs,
+      state: drafts.get(current.id),
+      saveState: (state) => drafts.set(current.id, state),
+      notify,
+    });
   if (focus) document.querySelector("main h1")?.focus({ preventScroll: true });
 }
 function card(t) {
@@ -266,65 +278,8 @@ function dashboard() {
   );
 }
 function workspace() {
-  const t = tools.find((t) => t.id === route.id);
-  const secret = t.id === "password";
-  return (
-    '<div class="breadcrumbs"><a href="#/all">All Tools</a><span>›</span><span>' +
-    t.label +
-    '</span></div><div class="workspace-header"><div class="workspace-title"><span class="tool-icon ' +
-    t.color +
-    '">' +
-    icon(t.icon) +
-    '</span><div><h1 tabindex="-1">' +
-    t.label +
-    "</h1><p>" +
-    t.description +
-    '</p></div></div><div class="workspace-actions"><button class="button primary" disabled title="Available in Phase ' +
-    t.phase +
-    '">' +
-    (t.id === "json"
-      ? "Format"
-      : t.id === "uuid" || secret
-        ? "Generate"
-        : t.id === "regex"
-          ? "Test expression"
-          : "Convert") +
-    '</button><button class="button" data-action="reset-draft">Reset</button><button class="icon-button" data-favorite="' +
-    t.id +
-    '" aria-label="Favorite ' +
-    t.label +
-    '" aria-pressed="' +
-    prefs.favorites.includes(t.id) +
-    '">' +
-    icon("star") +
-    '</button></div></div><div class="note phase-note">' +
-    icon("info") +
-    "<div><strong>Workspace preview · Phase 1</strong><br>" +
-    t.label +
-    " becomes functional in Phase " +
-    t.phase +
-    ". " +
-    (secret
-      ? "Password generation is not available yet. Do not enter secrets in this preview."
-      : "You can draft input here; it stays in memory only until this tab reloads.") +
-    '</div></div><div class="workspace-panels"><section class="editor-panel"><div class="editor-head"><label for="tool-input">Input</label><small>' +
-    (secret ? "Disabled preview" : "Session only") +
-    '</small></div><textarea id="tool-input" spellcheck="false" ' +
-    (secret ? "disabled" : "") +
-    ' placeholder="' +
-    (secret
-      ? "Secure password controls arrive in Phase 3."
-      : t.id === "json"
-        ? "Paste your JSON here…"
-        : "Enter " + t.label.toLowerCase() + " input…") +
-    '" aria-describedby="workspace-help"></textarea></section><section class="editor-panel"><div class="editor-head"><label for="tool-output">Output</label><small>Preview</small></div><textarea id="tool-output" readonly placeholder="Your result will appear here when this utility launches."></textarea></section></div><div class="workspace-status"><span>' +
-    icon("info") +
-    " Waiting for Phase " +
-    t.phase +
-    ' implementation</span><span id="input-count">0 characters · Nothing saved to storage</span></div><section class="workspace-help" id="workspace-help"><h2>A focused place for ' +
-    t.label.toLowerCase() +
-    "</h2><p>Use this workspace to prepare non-secret input. Processing, copy and file export will arrive with the utility implementation. No input is transmitted or automatically saved. The reset button clears the current draft.</p></section>"
-  );
+  const tool = tools.find((t) => t.id === route.id);
+  return workspaceMarkup(tool, prefs, prefs.favorites.includes(tool.id));
 }
 function pageMarkup() {
   if (["dashboard", "all", "favorites", "recent"].includes(route.page))
@@ -333,7 +288,7 @@ function pageMarkup() {
   if (route.page === "tool") return workspace();
   if (route.page === "about")
     return (
-      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Password previews are disabled and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Current release</h2><p>Version 0.1.0 · Phase 1 foundation. All eight workspace previews, navigation, settings and command search are available. Utility execution arrives in Phases 2–3. Installability and offline caching are planned for Phase 5 and are not available in this release.</p><a class="button" href="#/settings">Privacy & preferences ' +
+      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Password previews are disabled and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Current release</h2><p>Version 0.2.0 · Six core utilities are functional, with local processing, copy and downloads. Password and regex tools arrive in Phase 3. Installability and offline caching are planned for Phase 5 and are not available in this release.</p><a class="button" href="#/settings">Privacy & preferences ' +
       icon("arrow") +
       "</a></section></div>"
     );
@@ -376,6 +331,14 @@ function bindFavorites() {
           " favorites",
       );
       notify(added ? "Added to favorites" : "Removed from favorites");
+      if (route.page === "dashboard") {
+        const scroll = window.scrollY;
+        render();
+        document
+          .querySelector('[data-favorite="' + id + '"]')
+          ?.focus({ preventScroll: true });
+        window.scrollTo(0, scroll);
+      }
       if (route.page === "favorites") {
         updateGrid();
         const next =
@@ -515,20 +478,6 @@ function bind() {
       }
     });
   });
-  const input = document.querySelector("#tool-input");
-  if (input) {
-    input.value = drafts.get(route.id) || "";
-    input.wrap = prefs.wrap ? "soft" : "off";
-    input.style.tabSize = prefs.tabWidth;
-    const count = () =>
-      (document.querySelector("#input-count").textContent =
-        input.value.length + " characters · Nothing saved to storage");
-    count();
-    input.addEventListener("input", () => {
-      if (route.id !== "password") drafts.set(route.id, input.value);
-      count();
-    });
-  }
 }
 window.addEventListener("hashchange", () => {
   query = "";
@@ -552,6 +501,7 @@ document.addEventListener("keydown", (e) => {
     drawer.hidden = true;
     const b = document.querySelector('[data-action="menu"]');
     b.setAttribute("aria-expanded", "false");
+    b.setAttribute("aria-label", "Open navigation");
     b.focus();
   }
 });

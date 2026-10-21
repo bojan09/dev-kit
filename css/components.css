@@ -793,3 +793,181 @@ main h1:focus {
     display: none;
   }
 }
+
+.tool-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 20px;
+  min-height: 38px;
+}
+.tool-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.tool-option input[type="number"] {
+  width: 82px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+.tool-options .text-button {
+  margin-left: auto;
+}
+.editor-controls {
+  display: flex;
+  gap: 8px;
+}
+.editor-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 5px;
+  color: var(--muted);
+  background: none;
+  font-size: 11px;
+}
+.editor-button:hover {
+  color: var(--text);
+  background: var(--elevated);
+}
+.editor-button .icon {
+  width: 15px;
+  height: 15px;
+}
+.editor-meta {
+  font-size: 10px;
+  color: var(--muted);
+}
+.editor-body {
+  display: flex;
+  position: relative;
+  min-width: 0;
+}
+.line-gutter {
+  display: none;
+  flex-shrink: 0;
+  width: 42px;
+  margin: 0;
+  padding: 18px 8px;
+  text-align: right;
+  font: var(--editor-size)/1.8 var(--mono);
+  color: var(--muted);
+  user-select: none;
+  overflow: hidden;
+  max-height: 440px;
+  border-right: 1px solid var(--border);
+}
+.with-lines .line-gutter {
+  display: block;
+}
+.editor-body textarea {
+  min-width: 0;
+  height: 440px;
+}
+.with-lines textarea {
+  padding-left: 14px;
+}
+.workspace-status [data-state="success"] {
+  color: var(--success);
+}
+.workspace-status [data-state="error"] {
+  color: var(--error);
+  font-weight: 500;
+}
+.workspace-status {
+  align-items: flex-start;
+}
+.workspace-status > span:first-child {
+  max-width: 75%;
+  overflow-wrap: anywhere;
+}
+.live-time {
+  font: 11px var(--mono);
+  color: var(--muted);
+}
+.clipboard-fallback {
+  position: fixed;
+  top: 0;
+  left: -9999px;
+}
+.individual-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+}
+.individual-result code {
+  overflow-wrap: anywhere;
+  min-width: 0;
+  flex: 1;
+}
+#individual-results {
+  max-height: 180px;
+  overflow: auto;
+}
+.breadcrumbs a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.breadcrumbs a .icon {
+  transform: rotate(180deg);
+  width: 14px;
+}
+@media (max-width: 767px) {
+  .workspace-actions {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .workspace-actions .button {
+    padding: 9px 11px;
+    min-width: 65px;
+  }
+  .workspace-actions .icon-button {
+    flex: 0 0 36px;
+  }
+  .tool-options {
+    gap: 12px;
+  }
+  .tool-option {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tool-options .text-button {
+    margin-left: 0;
+  }
+  .editor-body textarea {
+    height: 300px;
+  }
+  .line-gutter {
+    max-height: 300px;
+    width: 32px;
+    font-size: 12px;
+  }
+  .workspace-status > span:first-child {
+    max-width: 100%;
+  }
+  .workspace-title h1 {
+    font-size: 22px;
+  }
+  .workspace-title p {
+    font-size: 11px;
+  }
+  .editor-head {
+    padding: 9px 12px;
+  }
+}

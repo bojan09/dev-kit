@@ -54,3 +54,13 @@ Read-only reviewer found Enter-on-Close navigation and focus loss after palette 
 ### Readiness and risks
 
 Phase 2 is ready after approval: JSON, Base64, UUID, Timestamp, URL and Text including validation, copy and exports. Utility actions are intentionally disabled now. Preview drafts are non-secret only. Native dialog requires a modern browser. No physical device, screen-reader, offline or deployed-host verification is claimed.
+
+## Phase 2 — Six core utilities
+
+Completed 2026-10-21. JSON format/minify/validation; strict UTF-8 standard Base64; secure v4 UUID batches and individual copy; explicit-unit timestamps with paused hidden-tab clock; component URL encoding/decoding and URL/query inspection; eight text transforms and Unicode-aware code-point counts. Shared workspace owns editor options, line gutters, validation, Ctrl/Cmd+Enter, reset, clipboard fallback, exports/object URL cleanup, bounded input/output and session-only state. Both Phase 1 minor findings are fixed with browser regressions.
+
+Changed: js/tools/{json,base64,uuid,timestamp,url,text}.js; js/{workspace,validation,clipboard,export}.js; registry/main/icons; component styles; tests and package scripts.
+
+Verification: npm test — 11/11; npm run test:tools — 24 browser checks; npm run test:browser — 99 assertions and all 14 routes at five required sizes. Browser screenshots refreshed. Initial utility tests failed before implementation; favorites bug regression failed before correction. Windows clipboard normalizes line endings, so clipboard assertion compares parsed JSON rather than platform-dependent newlines.
+
+Acceptance: six utilities, errors, Unicode, copy/download and session-only input checks passed. JSON numeric precision/duplicate keys, text locale/grapheme limitations and timestamp timezone rules are stated in tool help. Clipboard tested in Chrome on localhost; physical devices and other browser engines are deferred to release QA. Ready for Phase 3, already authorized. All remaining pushes target master per user instruction.

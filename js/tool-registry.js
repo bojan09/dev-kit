@@ -71,7 +71,11 @@ export const tools = [
     keywords: "regular expression match pattern",
     phase: 3,
   },
-].map((t) => ({ ...t, capabilities: { execute: false, export: false } }));
+].map((t) => ({
+  ...t,
+  capabilities: { execute: t.phase === 2, export: t.phase === 2 },
+  load: () => import("./tools/" + t.id + ".js"),
+}));
 export function fuzzy(query, text) {
   let i = 0;
   for (const c of text.toLowerCase()) {

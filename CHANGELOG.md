@@ -7,3 +7,8 @@
 - Added theme, accent, density, editor defaults, motion and validated local preferences.
 - Added favorites, recents, non-secret session drafts, clearing controls and denied-storage fallback.
 - Added tests, supplied design references and verification screenshots.
+
+## 0.2.0 — 2026-10-21
+
+- Six functional core utilities with shared editors, safe validation, copy and file export.
+- Fixed immediate favorites section refresh and mobile menu label after Escape.
