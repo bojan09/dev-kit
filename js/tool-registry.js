@@ -73,7 +73,7 @@ export const tools = [
   },
 ].map((t) => ({
   ...t,
-  capabilities: { execute: t.phase === 2, export: t.phase === 2 },
+  capabilities: { execute: true, export: t.id !== "password" },
   load: () => import("./tools/" + t.id + ".js"),
 }));
 export function fuzzy(query, text) {

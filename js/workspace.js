@@ -47,11 +47,12 @@ const config = {
   },
   password: {
     actions: [["generate", "Generate"]],
-    help: "Secure password generation arrives in Phase 3.",
+    help: "Uses Web Crypto with rejection sampling and a secure shuffle. At least one character from every selected category is included. Generated passwords are never saved, logged or added to history. Copy only when you choose; your clipboard is outside DevKit’s control. No password strength guarantee is made.",
   },
   regex: {
     actions: [["test", "Test expression"]],
-    help: "Isolated regex testing arrives in Phase 3.",
+    help: "Native JavaScript regex runs in a disposable worker, terminated after 750 ms. Limits: 500 pattern characters, 50,000 sample characters, 500 matches. Zero-width matches are shown as a thin marker. Pathological expressions can still briefly consume CPU or memory before termination. Match offsets use UTF-16 indices.",
+    example: "Hello DevKit! Hello world!",
   },
 };
 function select(name, label, values, value) {
@@ -124,6 +125,30 @@ export function workspaceMarkup(t, prefs, favorite) {
       ],
       "upper",
     );
+  if (t.id === "password")
+    opts =
+      '<label class="tool-option">Length<input name="length" aria-label="Password length" type="number" min="8" max="128" value="24"></label><div class="password-categories">' +
+      [
+        ["lowercase", "a–z"],
+        ["uppercase", "A–Z"],
+        ["numbers", "0–9"],
+        ["symbols", "!@#"],
+      ]
+        .map(
+          ([name, label]) =>
+            '<label><input type="checkbox" name="' +
+            name +
+            '" checked>' +
+            label +
+            '<span class="sr-only"> ' +
+            name +
+            "</span></label>",
+        )
+        .join("") +
+      "</div>";
+  if (t.id === "regex")
+    opts =
+      '<label class="tool-option regex-pattern">Pattern<input name="pattern" aria-label="Regular expression" maxlength="500" value="Hello" spellcheck="false" autocomplete="off" placeholder="Enter a regular expression"></label><label class="tool-option">Flags<input name="flags" aria-label="Regex flags" maxlength="8" value="g" spellcheck="false" autocomplete="off"></label>';
   return (
     '<div class="breadcrumbs"><a href="#/all">' +
     icon("arrow") +
@@ -176,18 +201,20 @@ export function workspaceMarkup(t, prefs, favorite) {
     '</div><div class="workspace-panels"><section class="editor-panel"><div class="editor-head"><label for="tool-input">Input</label><span class="editor-meta">' +
     (t.id === "uuid" ? "No input required" : "Session only") +
     '</span></div><div class="editor-body"><pre class="line-gutter" aria-hidden="true"></pre><textarea id="tool-input" aria-describedby="workspace-help" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="1000000" ' +
-    (!enabled || t.id === "uuid" ? "disabled" : "") +
+    (!enabled || ["uuid", "password"].includes(t.id) ? "disabled" : "") +
     ' placeholder="' +
-    (t.id === "uuid"
-      ? "Set a batch count, then generate."
-      : t.id === "json"
-        ? "Paste your JSON here…"
-        : "Enter your input here…") +
+    (t.id === "password"
+      ? "Choose length and character categories above, then Generate. Passwords are cleared when you leave this workspace."
+      : t.id === "uuid"
+        ? "Set a batch count, then generate."
+        : t.id === "json"
+          ? "Paste your JSON here…"
+          : "Enter your input here…") +
     '"></textarea></div></section><section class="editor-panel"><div class="editor-head"><label for="tool-output">Output</label><div class="editor-controls"><button class="editor-button" data-workspace="copy" aria-label="Copy output" disabled>' +
     icon("copy") +
     ' Copy</button><button class="editor-button" data-workspace="download" aria-label="Download output" disabled>' +
     icon("download") +
-    '</button></div></div><div class="editor-body"><pre class="line-gutter" aria-hidden="true"></pre><textarea id="tool-output" readonly spellcheck="false" placeholder="Your result will appear here…"></textarea></div><div id="individual-results"></div></section></div><div class="workspace-status"><span id="tool-result-status" role="status" aria-live="polite" data-state="idle">' +
+    '</button></div></div><div class="editor-body"><pre class="line-gutter" aria-hidden="true"></pre><textarea id="tool-output" readonly spellcheck="false" placeholder="Your result will appear here…"></textarea></div><div id="individual-results"></div></section></div><section class="regex-preview" id="regex-preview" hidden><h2>Match preview</h2><pre id="regex-highlight"></pre><div id="regex-groups"></div></section><div class="workspace-status"><span id="tool-result-status" role="status" aria-live="polite" data-state="idle">' +
     (enabled ? "Ready when you are" : "Available in Phase 3") +
     '</span><span id="input-count">0 characters · Session only</span></div><section class="workspace-help" id="workspace-help"><h2>Good to know</h2><p>' +
     c.help +
@@ -207,7 +234,8 @@ export function mountWorkspace(
   let action = state.action || config[tool.id].actions[0][0],
     disposed = false,
     working = 0,
-    timer = null;
+    timer = null,
+    runAbort;
   input.value = state.input || "";
   output.value = state.output || "";
   for (const el of options.querySelectorAll("[name]"))
@@ -253,6 +281,8 @@ export function mountWorkspace(
     container.querySelector("#input-count").textContent =
       input.value.length.toLocaleString() + " characters · Session only";
   }
+  if (tool.id === "password")
+    container.querySelector('[data-workspace="download"]').hidden = true;
   function available() {
     for (const el of container.querySelectorAll(
       '[data-workspace="copy"],[data-workspace="download"]',
@@ -266,6 +296,9 @@ export function mountWorkspace(
   }
   function clearResult() {
     output.value = "";
+    container.querySelector("#regex-preview").hidden = true;
+    container.querySelector("#regex-highlight").replaceChildren();
+    container.querySelector("#regex-groups").replaceChildren();
     container.querySelector("#individual-results").replaceChildren();
     available();
     lines();
@@ -273,6 +306,8 @@ export function mountWorkspace(
   async function run(nextAction = action) {
     if (!tool.capabilities.execute) return;
     action = nextAction;
+    runAbort?.abort();
+    runAbort = new AbortController();
     const sequence = ++working;
     message("Working…", "busy");
     try {
@@ -281,10 +316,12 @@ export function mountWorkspace(
       const module = await tool.load();
       const result = await module.run(input.value, {
         ...opts(),
+        signal: runAbort.signal,
         action: tool.id === "text" ? opts().action : action,
       });
       if (disposed || sequence !== working) return;
       output.value = result.output;
+      if (result.matches) renderMatches(result);
       message(result.status);
       container
         .querySelectorAll("[data-run]")
@@ -324,9 +361,43 @@ export function mountWorkspace(
       save();
     }
   }
+  function renderMatches(result) {
+    const preview = container.querySelector("#regex-preview"),
+      highlights = container.querySelector("#regex-highlight"),
+      groups = container.querySelector("#regex-groups");
+    preview.hidden = false;
+    highlights.replaceChildren();
+    groups.replaceChildren();
+    let end = 0;
+    for (const match of result.matches) {
+      highlights.append(
+        document.createTextNode(result.sample.slice(end, match.index)),
+      );
+      const mark = document.createElement("mark");
+      mark.textContent = match.text || "▏";
+      mark.title = "Match at " + match.index;
+      highlights.append(mark);
+      end = match.end;
+      if (match.groups.length || match.namedGroups) {
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.textContent = "Capture groups · match at " + match.index;
+        const text = document.createElement("pre");
+        text.textContent = JSON.stringify(
+          { groups: match.groups, named: match.namedGroups },
+          null,
+          2,
+        );
+        details.append(summary, text);
+        groups.append(details);
+      }
+    }
+    highlights.append(document.createTextNode(result.sample.slice(end)));
+  }
   input.addEventListener(
     "input",
     () => {
+      runAbort?.abort();
       working++;
       clearResult();
       message("Input changed · run to update output", "idle");
@@ -441,6 +512,11 @@ export function mountWorkspace(
     disposed = true;
     working++;
     clearInterval(timer);
+    runAbort?.abort();
+    if (tool.id === "password") {
+      input.value = "";
+      output.value = "";
+    }
     abort.abort();
   };
 }

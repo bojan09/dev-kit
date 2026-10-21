@@ -12,3 +12,8 @@
 
 - Six functional core utilities with shared editors, safe validation, copy and file export.
 - Fixed immediate favorites section refresh and mobile menu label after Escape.
+
+## 0.3.0 — 2026-10-21
+
+- Secure password generation with category controls and no secret history.
+- Regex workers, safe match highlighting/captures, size limits, timeout and recovery.

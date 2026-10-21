@@ -64,3 +64,13 @@ Changed: js/tools/{json,base64,uuid,timestamp,url,text}.js; js/{workspace,valida
 Verification: npm test — 11/11; npm run test:tools — 24 browser checks; npm run test:browser — 99 assertions and all 14 routes at five required sizes. Browser screenshots refreshed. Initial utility tests failed before implementation; favorites bug regression failed before correction. Windows clipboard normalizes line endings, so clipboard assertion compares parsed JSON rather than platform-dependent newlines.
 
 Acceptance: six utilities, errors, Unicode, copy/download and session-only input checks passed. JSON numeric precision/duplicate keys, text locale/grapheme limitations and timestamp timezone rules are stated in tool help. Clipboard tested in Chrome on localhost; physical devices and other browser engines are deferred to release QA. Ready for Phase 3, already authorized. All remaining pushes target master per user instruction.
+
+## Phase 3 — Password, regex and security
+
+All eight tools now execute. Passwords: 8–128 characters, selectable categories with inclusion guarantees, unbiased rejection-sampled indexes, secure Fisher–Yates shuffle, explicit copy, no download/history/storage and cleared DOM values on navigation. Regex: native flags/captures, safe text-node highlights, Unicode zero-width progression, pattern/sample/match bounds, disposable module worker, 750 ms termination and cancellation on edits/navigation. CSP explicitly restricts workers to this origin.
+
+Changed: password.js, regex.js, regex-engine.js, regex-worker.js; workspace lifecycle, controls and safe result rendering; registry capabilities; CSP, styles, release copy and security tests.
+
+Verification: npm test — 15/15, including rejection sampling, category constraints, zero-width/capture cases and bounds. npm run test:security — 14 real browser checks, including a 20,001-character pathological regex terminated within the 4-second test ceiling, successful next-worker recovery, injection text, no stored password and cleared password after navigation. Core utility browser regression suite retained.
+
+Residual risk: a pathological regex can consume worker CPU/memory before termination; termination is mitigation, not a resource-use guarantee. JavaScript engine bugs, extensions, compromised devices and clipboard access remain outside application control. Secure APIs require HTTPS or localhost. Ready for the authorized Phase 4 UI/UX and accessibility audit.

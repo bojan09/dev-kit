@@ -971,3 +971,73 @@ main h1:focus {
     padding: 9px 12px;
   }
 }
+
+.password-categories {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.password-categories label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font: 12px var(--mono);
+  color: var(--muted);
+}
+.password-categories input {
+  accent-color: var(--accent);
+  width: 17px;
+  height: 17px;
+}
+.regex-pattern {
+  flex: 1;
+}
+.tool-option input[type="text"],
+.tool-option input:not([type]) {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 10px;
+  min-width: 0;
+  font-family: var(--mono);
+}
+.regex-pattern input {
+  flex: 1;
+  min-width: 100px;
+}
+.tool-option input[name="flags"] {
+  width: 72px;
+}
+.regex-preview {
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--surface);
+}
+.regex-preview pre {
+  font: var(--editor-size)/1.8 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 280px;
+  overflow: auto;
+}
+.regex-preview mark {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--text);
+  border-bottom: 2px solid var(--accent);
+  border-radius: 2px;
+}
+.regex-preview details {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.regex-preview summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+[hidden] {
+  display: none !important;
+}
