@@ -1,0 +1,569 @@
+import { tools, searchTools } from "./tool-registry.js";
+import { resolveRoute } from "./router.js";
+import {
+  loadPreferences,
+  savePreferences,
+  validatePreferences,
+  applyPreferences,
+  defaults,
+} from "./preferences.js";
+import { icon } from "./icons.js";
+import { settingsMarkup, settingTabs } from "./settings.js";
+import { setupPalette } from "./command-palette.js";
+let prefs = loadPreferences(),
+  route = resolveRoute(location.hash),
+  tab = "Appearance",
+  query = "",
+  drafts = new Map(),
+  toastTimer;
+applyPreferences(prefs);
+const app = document.querySelector("#app");
+const navigation = [
+  ["dashboard", "/", "dashboard", "Dashboard"],
+  ["all", "/all", "dashboard", "All Tools"],
+  ["favorites", "/favorites", "star", "Favorites"],
+  ["recent", "/recent", "clock", "Recent"],
+  ["settings", "/settings", "settings", "Settings"],
+  ["about", "/about", "info", "About"],
+];
+function logo() {
+  return '<span class="logo" aria-hidden="true"><span>›_</span></span>';
+}
+function navItem([id, path, glyph, label]) {
+  return (
+    '<a class="nav-item ' +
+    (route.page === id ? "active" : "") +
+    '" href="#' +
+    path +
+    '" aria-label="' +
+    label +
+    '" ' +
+    (route.page === id ? 'aria-current="page"' : "") +
+    ">" +
+    icon(glyph) +
+    '<span class="nav-text">' +
+    label +
+    "</span>" +
+    (id === "all" ? '<span class="nav-count">8</span>' : "") +
+    "</a>"
+  );
+}
+function notify(message) {
+  const status = document.querySelector("#status");
+  status.textContent = message;
+  status.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => status.classList.remove("show"), 3000);
+}
+function updatePreferences(patch) {
+  prefs = validatePreferences({ ...prefs, ...patch });
+  applyPreferences(prefs);
+  if (!savePreferences(prefs))
+    notify("Preferences apply for this tab. Browser storage is unavailable.");
+}
+function navigate(path) {
+  if (location.hash === "#" + path) {
+    render(true);
+    return;
+  }
+  location.hash = path;
+}
+const palette = setupPalette({
+  navigate,
+  notify,
+  getRecent: () => prefs.recent,
+  toggleTheme: () => {
+    updatePreferences({
+      theme:
+        document.documentElement.dataset.theme === "dark" ? "light" : "dark",
+    });
+    notify("Theme updated");
+  },
+});
+function render(focus = false) {
+  route = resolveRoute(location.hash);
+  const current = tools.find((t) => t.id === route.id);
+  document.title =
+    (current?.label ||
+      {
+        dashboard: "Dashboard",
+        all: "All Tools",
+        favorites: "Favorites",
+        recent: "Recent",
+        settings: "Settings",
+        about: "About & Privacy",
+      }[route.page] ||
+      "Page not found") + " — DevKit";
+  app.innerHTML =
+    '<div class="app-shell"><aside class="sidebar" aria-label="Primary navigation"><a class="brand" href="#/" aria-label="DevKit home">' +
+    logo() +
+    '<div class="brand-copy"><div class="brand-name">DevKit</div><div class="brand-sub">Your everyday toolkit</div></div></a><p class="nav-label">WORKSPACE</p><nav>' +
+    navigation.slice(0, 4).map(navItem).join("") +
+    '<div class="sidebar-divider"></div>' +
+    navigation.slice(4).map(navItem).join("") +
+    '</nav><div class="sidebar-bottom"><div class="local-note">' +
+    icon("shield") +
+    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v0.1.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
+    (prefs.sidebarCollapsed ? "Expand" : "Collapse") +
+    ' sidebar">' +
+    icon("collapse") +
+    '</button></div></div></aside><div class="main-shell"><header class="topbar"><a class="mobile-brand" href="#/">' +
+    logo() +
+    'DevKit</a><button class="top-search" data-action="palette" aria-label="Search tools and commands">' +
+    icon("search") +
+    '<span class="search-copy">Search tools, actions, or settings…</span><kbd>Ctrl K</kbd></button><div class="top-actions"><span class="top-privacy"><span class="dot"></span> Local. Private. Yours.</span><button class="icon-button" data-action="theme" aria-label="Toggle theme">' +
+    icon("sun") +
+    '</button><a class="icon-button" href="#/settings" aria-label="Open settings">' +
+    icon("settings") +
+    '</a></div><button class="mobile-menu icon-button" data-action="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-drawer">' +
+    icon("menu") +
+    '</button></header><nav class="nav-drawer" id="mobile-drawer" aria-label="Mobile navigation" hidden>' +
+    navigation.map(navItem).join("") +
+    '</nav><main class="main-content" id="main" tabindex="-1"><div class="route-view">' +
+    pageMarkup() +
+    '</div><footer class="page-footer"><span>' +
+    icon("shield") +
+    'Built for your workflow. Private by design.</span><span>Made for the little things you do every day.</span></footer></main></div></div><nav class="bottom-nav" aria-label="Quick navigation">' +
+    [navigation[0], navigation[1], navigation[2], navigation[4]]
+      .map(
+        ([id, path, glyph, label]) =>
+          '<a href="#' +
+          path +
+          '" ' +
+          (route.page === id ? 'class="active" aria-current="page"' : "") +
+          ">" +
+          icon(glyph) +
+          "<span>" +
+          (id === "dashboard" ? "Home" : id === "all" ? "Tools" : label) +
+          "</span></a>",
+      )
+      .join("") +
+    "</nav>";
+  bind();
+  if (focus) document.querySelector("main h1")?.focus({ preventScroll: true });
+}
+function card(t) {
+  const fav = prefs.favorites.includes(t.id);
+  return (
+    '<article class="tool-card"><a class="tool-link" href="#/tools/' +
+    t.id +
+    '"><span class="tool-icon ' +
+    t.color +
+    '">' +
+    icon(t.icon) +
+    "</span><h3>" +
+    t.label +
+    "</h3><p>" +
+    t.description +
+    "</p>" +
+    icon("arrow", "card-arrow") +
+    '</a><button class="favorite-button" data-favorite="' +
+    t.id +
+    '" aria-label="' +
+    (fav ? "Remove " + t.label + " from" : "Add " + t.label + " to") +
+    ' favorites" aria-pressed="' +
+    fav +
+    '">' +
+    icon("star") +
+    "</button></article>"
+  );
+}
+function recentCard(t) {
+  return (
+    '<a class="recent-card" href="#/tools/' +
+    t.id +
+    '"><span class="tool-icon ' +
+    t.color +
+    '">' +
+    icon(t.icon) +
+    "</span><div><strong>" +
+    t.label +
+    "</strong><small>Recently opened</small></div></a>"
+  );
+}
+function empty(title, detail, glyph = "search") {
+  return (
+    '<div class="empty-state">' +
+    icon(glyph) +
+    "<strong>" +
+    title +
+    "</strong><p>" +
+    detail +
+    "</p></div>"
+  );
+}
+function dashboard() {
+  const isHome = route.page === "dashboard",
+    heading =
+      { all: "All Tools", favorites: "Favorites", recent: "Recent Tools" }[
+        route.page
+      ] || "All Tools";
+  let subset = searchTools(query);
+  if (route.page === "favorites")
+    subset = subset.filter((t) => prefs.favorites.includes(t.id));
+  if (route.page === "recent")
+    subset = prefs.recent
+      .map((id) => subset.find((t) => t.id === id))
+      .filter(Boolean);
+  return (
+    (isHome
+      ? '<section class="hero"><div><div class="eyebrow">A LITTLE LESS FRICTION. A LOT MORE FLOW.</div><h1 tabindex="-1">Welcome to DevKit</h1><p>Your everyday developer toolkit. Fast, focused, and entirely yours.</p></div><div class="hero-art" aria-hidden="true"></div><div class="hero-privacy">' +
+        icon("shield") +
+        "<div><strong>100% in your browser</strong><small>No accounts. No tracking.<br>Just you and your tools.</small></div></div></section>"
+      : '<div class="page-heading"><p class="eyebrow">YOUR EVERYDAY TOOLKIT</p><h1 tabindex="-1">' +
+        heading +
+        "</h1><p>" +
+        (route.page === "favorites"
+          ? "Your go-to tools, a little closer."
+          : route.page === "recent"
+            ? "Pick up where you left off."
+            : "Eight small tools. One thoughtful workspace.") +
+        "</p></div>") +
+    '<div class="tools-toolbar"><h2>' +
+    (isHome ? "Your tools" : heading) +
+    '<span class="count-badge" id="tool-count">' +
+    subset.length +
+    '</span></h2><label class="filter-search">' +
+    icon("search") +
+    '<input id="tool-search" type="search" placeholder="Filter tools…" aria-label="Filter tools" autocomplete="off"><kbd>/</kbd></label></div><div class="tool-grid" id="tool-grid">' +
+    (subset.length
+      ? subset.map(card).join("")
+      : empty(
+          route.page === "favorites"
+            ? "Your favorites start here"
+            : route.page === "recent"
+              ? "A fresh start"
+              : "No matching tools",
+          route.page === "favorites"
+            ? "Star a tool to keep it close."
+            : route.page === "recent"
+              ? "Open a tool and it will appear here."
+              : "Try another name or keyword.",
+        )) +
+    "</div>" +
+    (isHome
+      ? '<div class="section-head"><h2>Recent tools</h2><a href="#/recent">View all ' +
+        icon("arrow") +
+        '</a></div><div class="recent-grid">' +
+        (prefs.recent.length
+          ? prefs.recent
+              .slice(0, 4)
+              .map((id) => recentCard(tools.find((t) => t.id === id)))
+              .join("")
+          : '<div class="empty-state recent-empty">' +
+            icon("clock") +
+            "<div><strong>A fresh workspace, ready when you are.</strong><p>Your recently opened tools will appear here.</p></div></div>") +
+        "</div>" +
+        (prefs.favorites.length
+          ? '<div class="section-head"><h2>Your favorites</h2><a href="#/favorites">View favorites</a></div><div class="recent-grid">' +
+            prefs.favorites
+              .slice(0, 4)
+              .map((id) => recentCard(tools.find((t) => t.id === id)))
+              .join("") +
+            "</div>"
+          : "")
+      : "")
+  );
+}
+function workspace() {
+  const t = tools.find((t) => t.id === route.id);
+  const secret = t.id === "password";
+  return (
+    '<div class="breadcrumbs"><a href="#/all">All Tools</a><span>›</span><span>' +
+    t.label +
+    '</span></div><div class="workspace-header"><div class="workspace-title"><span class="tool-icon ' +
+    t.color +
+    '">' +
+    icon(t.icon) +
+    '</span><div><h1 tabindex="-1">' +
+    t.label +
+    "</h1><p>" +
+    t.description +
+    '</p></div></div><div class="workspace-actions"><button class="button primary" disabled title="Available in Phase ' +
+    t.phase +
+    '">' +
+    (t.id === "json"
+      ? "Format"
+      : t.id === "uuid" || secret
+        ? "Generate"
+        : t.id === "regex"
+          ? "Test expression"
+          : "Convert") +
+    '</button><button class="button" data-action="reset-draft">Reset</button><button class="icon-button" data-favorite="' +
+    t.id +
+    '" aria-label="Favorite ' +
+    t.label +
+    '" aria-pressed="' +
+    prefs.favorites.includes(t.id) +
+    '">' +
+    icon("star") +
+    '</button></div></div><div class="note phase-note">' +
+    icon("info") +
+    "<div><strong>Workspace preview · Phase 1</strong><br>" +
+    t.label +
+    " becomes functional in Phase " +
+    t.phase +
+    ". " +
+    (secret
+      ? "Password generation is not available yet. Do not enter secrets in this preview."
+      : "You can draft input here; it stays in memory only until this tab reloads.") +
+    '</div></div><div class="workspace-panels"><section class="editor-panel"><div class="editor-head"><label for="tool-input">Input</label><small>' +
+    (secret ? "Disabled preview" : "Session only") +
+    '</small></div><textarea id="tool-input" spellcheck="false" ' +
+    (secret ? "disabled" : "") +
+    ' placeholder="' +
+    (secret
+      ? "Secure password controls arrive in Phase 3."
+      : t.id === "json"
+        ? "Paste your JSON here…"
+        : "Enter " + t.label.toLowerCase() + " input…") +
+    '" aria-describedby="workspace-help"></textarea></section><section class="editor-panel"><div class="editor-head"><label for="tool-output">Output</label><small>Preview</small></div><textarea id="tool-output" readonly placeholder="Your result will appear here when this utility launches."></textarea></section></div><div class="workspace-status"><span>' +
+    icon("info") +
+    " Waiting for Phase " +
+    t.phase +
+    ' implementation</span><span id="input-count">0 characters · Nothing saved to storage</span></div><section class="workspace-help" id="workspace-help"><h2>A focused place for ' +
+    t.label.toLowerCase() +
+    "</h2><p>Use this workspace to prepare non-secret input. Processing, copy and file export will arrive with the utility implementation. No input is transmitted or automatically saved. The reset button clears the current draft.</p></section>"
+  );
+}
+function pageMarkup() {
+  if (["dashboard", "all", "favorites", "recent"].includes(route.page))
+    return dashboard();
+  if (route.page === "settings") return settingsMarkup(prefs, tab);
+  if (route.page === "tool") return workspace();
+  if (route.page === "about")
+    return (
+      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Password previews are disabled and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Current release</h2><p>Version 0.1.0 · Phase 1 foundation. All eight workspace previews, navigation, settings and command search are available. Utility execution arrives in Phases 2–3. Installability and offline caching are planned for Phase 5 and are not available in this release.</p><a class="button" href="#/settings">Privacy & preferences ' +
+      icon("arrow") +
+      "</a></section></div>"
+    );
+  return (
+    '<div class="page-heading"><h1 tabindex="-1">This page wandered off.</h1><p>The route does not exist. Your tools are right here.</p></div><a class="button primary" href="#/">Back to dashboard ' +
+    icon("arrow") +
+    "</a>"
+  );
+}
+function updateGrid() {
+  let subset = searchTools(query);
+  if (route.page === "favorites")
+    subset = subset.filter((t) => prefs.favorites.includes(t.id));
+  if (route.page === "recent")
+    subset = prefs.recent
+      .map((id) => subset.find((t) => t.id === id))
+      .filter(Boolean);
+  document.querySelector("#tool-grid").innerHTML = subset.length
+    ? subset.map(card).join("")
+    : empty("No matching tools", "Try another name or keyword.");
+  document.querySelector("#tool-count").textContent = subset.length;
+  bindFavorites();
+}
+function bindFavorites() {
+  document.querySelectorAll("[data-favorite]").forEach((button) =>
+    button.addEventListener("click", () => {
+      const id = button.dataset.favorite;
+      const added = !prefs.favorites.includes(id);
+      updatePreferences({
+        favorites: added
+          ? [...prefs.favorites, id]
+          : prefs.favorites.filter((x) => x !== id),
+      });
+      button.setAttribute("aria-pressed", String(added));
+      button.setAttribute(
+        "aria-label",
+        (added ? "Remove " : "Add ") +
+          tools.find((t) => t.id === id).label +
+          (added ? " from" : " to") +
+          " favorites",
+      );
+      notify(added ? "Added to favorites" : "Removed from favorites");
+      if (route.page === "favorites") {
+        updateGrid();
+        const next =
+          document.querySelector("[data-favorite]") ||
+          document.querySelector("main h1");
+        next?.focus();
+      }
+    }),
+  );
+}
+function bind() {
+  bindFavorites();
+  const search = document.querySelector("#tool-search");
+  if (search) {
+    search.value = query;
+    search.addEventListener("input", () => {
+      query = search.value;
+      updateGrid();
+    });
+  }
+  document.querySelectorAll("[data-action]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const action = b.dataset.action;
+      if (action === "palette") palette.open(b);
+      if (action === "collapse") {
+        updatePreferences({ sidebarCollapsed: !prefs.sidebarCollapsed });
+        b.setAttribute(
+          "aria-label",
+          (prefs.sidebarCollapsed ? "Expand" : "Collapse") + " sidebar",
+        );
+      }
+      if (action === "theme") {
+        updatePreferences({
+          theme:
+            document.documentElement.dataset.theme === "dark"
+              ? "light"
+              : "dark",
+        });
+        notify("Theme updated");
+      }
+      if (action === "menu") {
+        const drawer = document.querySelector("#mobile-drawer");
+        drawer.hidden = !drawer.hidden;
+        b.setAttribute("aria-expanded", String(!drawer.hidden));
+        b.setAttribute(
+          "aria-label",
+          drawer.hidden ? "Open navigation" : "Close navigation",
+        );
+        if (!drawer.hidden) drawer.querySelector("a").focus();
+      }
+      if (action === "reset-draft") {
+        drafts.delete(route.id);
+        const input = document.querySelector("#tool-input");
+        input.value = "";
+        document.querySelector("#input-count").textContent =
+          "0 characters · Nothing saved to storage";
+        notify("Draft cleared");
+      }
+      if (action === "clear-inputs") {
+        drafts.clear();
+        notify("Session inputs cleared");
+      }
+      if (action === "clear-favorites") {
+        updatePreferences({ favorites: [] });
+        render();
+        document.querySelector('[data-action="clear-favorites"]').focus();
+        notify("Favorites cleared");
+      }
+      if (action === "clear-recent") {
+        updatePreferences({ recent: [] });
+        render();
+        document.querySelector('[data-action="clear-recent"]').focus();
+        notify("Recent tools cleared");
+      }
+      if (action === "reset-preferences") {
+        prefs = validatePreferences(defaults);
+        applyPreferences(prefs);
+        savePreferences(prefs);
+        drafts.clear();
+        render();
+        document.querySelector('[data-action="reset-preferences"]').focus();
+        notify("Preferences restored to defaults");
+      }
+    }),
+  );
+  document.querySelectorAll("[data-tab]").forEach((b) => {
+    b.addEventListener("click", () => {
+      tab = b.dataset.tab;
+      render();
+      document.querySelector('[data-tab="' + tab + '"]').focus();
+    });
+    b.addEventListener("keydown", (e) => {
+      const keys = [
+        "ArrowDown",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowLeft",
+        "Home",
+        "End",
+      ];
+      if (!keys.includes(e.key)) return;
+      e.preventDefault();
+      let i = settingTabs.indexOf(tab);
+      i =
+        e.key === "Home"
+          ? 0
+          : e.key === "End"
+            ? settingTabs.length - 1
+            : (i +
+                (["ArrowDown", "ArrowRight"].includes(e.key) ? 1 : -1) +
+                settingTabs.length) %
+              settingTabs.length;
+      tab = settingTabs[i];
+      render();
+      document.querySelector('[data-tab="' + tab + '"]').focus();
+    });
+  });
+  document.querySelectorAll("[data-pref]").forEach((el) => {
+    const event = el.tagName === "BUTTON" ? "click" : "change";
+    el.addEventListener(event, () => {
+      const key = el.dataset.pref;
+      let value =
+        el.tagName === "BUTTON"
+          ? el.dataset.value
+          : el.type === "checkbox"
+            ? el.checked
+            : el.value;
+      if (["fontSize", "tabWidth", "jsonIndent"].includes(key))
+        value = Number(value);
+      updatePreferences({ [key]: value });
+      if (el.tagName === "BUTTON") {
+        document
+          .querySelectorAll('[data-pref="' + key + '"]')
+          .forEach((b) =>
+            b.setAttribute("aria-pressed", String(b.dataset.value === value)),
+          );
+      }
+    });
+  });
+  const input = document.querySelector("#tool-input");
+  if (input) {
+    input.value = drafts.get(route.id) || "";
+    input.wrap = prefs.wrap ? "soft" : "off";
+    input.style.tabSize = prefs.tabWidth;
+    const count = () =>
+      (document.querySelector("#input-count").textContent =
+        input.value.length + " characters · Nothing saved to storage");
+    count();
+    input.addEventListener("input", () => {
+      if (route.id !== "password") drafts.set(route.id, input.value);
+      count();
+    });
+  }
+}
+window.addEventListener("hashchange", () => {
+  query = "";
+  route = resolveRoute(location.hash);
+  if (route.page === "tool" && route.id !== "password")
+    updatePreferences({
+      recent: [route.id, ...prefs.recent.filter((id) => id !== route.id)].slice(
+        0,
+        8,
+      ),
+    });
+  render(true);
+  window.scrollTo(0, 0);
+});
+matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+  if (prefs.theme === "system") applyPreferences(prefs);
+});
+document.addEventListener("keydown", (e) => {
+  const drawer = document.querySelector("#mobile-drawer");
+  if (e.key === "Escape" && drawer && !drawer.hidden) {
+    drawer.hidden = true;
+    const b = document.querySelector('[data-action="menu"]');
+    b.setAttribute("aria-expanded", "false");
+    b.focus();
+  }
+});
+document.querySelector(".skip-link").addEventListener("click", (e) => {
+  e.preventDefault();
+  document.querySelector("#main").focus();
+});
+if (route.page === "tool" && route.id !== "password")
+  updatePreferences({
+    recent: [route.id, ...prefs.recent.filter((id) => id !== route.id)].slice(
+      0,
+      8,
+    ),
+  });
+render();

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0B1020" />
+    <meta
+      name="description"
+      content="Your everyday, privacy-first developer toolkit. A free browser-local workspace."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <title>DevKit — Your everyday developer toolkit</title>
+    <link rel="icon" href="assets/icons/logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/motion.css" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div id="app"></div>
+    <dialog id="palette" aria-label="Command palette">
+      <div class="palette-search">
+        <span id="palette-search-icon"></span
+        ><input
+          id="command-input"
+          role="combobox"
+          aria-label="Search tools and actions"
+          aria-autocomplete="list"
+          aria-controls="command-results"
+          aria-expanded="false"
+          autocomplete="off"
+          placeholder="Search tools, actions, or settings…"
+        /><button class="key close-palette" aria-label="Close command palette">
+          Esc
+        </button>
+      </div>
+      <div
+        id="command-results"
+        role="listbox"
+        aria-label="Tools and actions"
+      ></div>
+      <div class="palette-footer">
+        <span><kbd>↑</kbd><kbd>↓</kbd> to navigate <kbd>↵</kbd> to open</span
+        ><span>DevKit command menu</span>
+      </div>
+    </dialog>
+    <div id="status" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

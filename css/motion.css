@@ -1,0 +1,73 @@
+button,
+a {
+  transition:
+    background var(--hover),
+    color var(--hover),
+    border-color var(--hover),
+    opacity var(--hover);
+}
+.tool-card {
+  transition:
+    transform var(--card-time),
+    border-color var(--card-time),
+    box-shadow var(--card-time);
+}
+.tool-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  box-shadow: 0 8px 24px #0002;
+}
+.nav-item:hover,
+.icon-button:hover {
+  background: var(--elevated);
+  color: var(--text);
+}
+.button:not(:disabled):hover {
+  filter: brightness(1.12);
+}
+.sidebar {
+  transition: width var(--sidebar-time);
+}
+.toast {
+  transition:
+    opacity var(--route-time),
+    transform var(--route-time);
+}
+.route-view {
+  animation: arrive var(--route-time) ease-out;
+}
+dialog[open] {
+  animation: arrive var(--route-time) ease-out;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+[data-motion="reduced"] *,
+[data-motion="off"] * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+[data-motion="reduced"] .tool-card:hover,
+[data-motion="off"] .tool-card:hover {
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .tool-card:hover {
+    transform: none;
+  }
+}

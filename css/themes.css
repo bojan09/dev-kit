@@ -1,0 +1,46 @@
+[data-theme="light"] {
+  color-scheme: light;
+  --canvas: #f7f8fc;
+  --surface: #fff;
+  --elevated: #f0f3fa;
+  --text: #111827;
+  --muted: #64748b;
+  --border: #dce2ed;
+  --success: #087f5b;
+  --error: #be123c;
+  --warning: #9a6700;
+  --shadow: 0 16px 50px #22325512;
+}
+[data-theme="light"] .nav-item.active {
+  color: color-mix(in srgb, var(--accent) 70%, #111827);
+  background: color-mix(in srgb, var(--accent) 12%, white);
+}
+[data-theme="light"] .nav-item.active .icon {
+  color: color-mix(in srgb, var(--accent) 80%, #111827);
+}
+[data-theme="light"] .hero {
+  background: linear-gradient(110deg, #fff, var(--canvas));
+}
+[data-theme="light"] .hero-art {
+  opacity: 0.65;
+}
+[data-density="compact"] {
+  --card-pad: 17px;
+  --content-gap: 14px;
+}
+[data-density="compact"] .tool-card {
+  min-height: 170px;
+}
+[data-density="spacious"] {
+  --card-pad: 28px;
+  --content-gap: 24px;
+}
+[data-density="spacious"] .tool-card {
+  min-height: 216px;
+}
+[data-density="compact"] .tool-grid {
+  gap: 12px;
+}
+[data-density="spacious"] .tool-grid {
+  gap: 20px;
+}
