@@ -92,3 +92,15 @@ test("regex zero-width Unicode advance, size and match limits", () => {
     /limit/,
   );
 });
+
+test("regex bounds aggregate capture characters before posting to UI", () => {
+  assert.throws(
+    () =>
+      evaluateRegex({
+        pattern: "(?=(.*))",
+        flags: "g",
+        sample: "a".repeat(50000),
+      }),
+    /capture.*limit/i,
+  );
+});

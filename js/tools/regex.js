@@ -1,3 +1,4 @@
+import { result as boundedResult } from "../validation.js";
 import { REGEX_LIMITS } from "./regex-engine.js";
 export function run(sample, { pattern = "", flags = "g", signal } = {}) {
   if (
@@ -54,7 +55,7 @@ export function run(sample, { pattern = "", flags = "g", signal } = {}) {
               .join("\n\n")
           : "No matches.";
         resolve({
-          output,
+          ...boundedResult(output),
           status:
             result.matches.length +
             " match" +

@@ -258,7 +258,7 @@ export function settingsMarkup(p, tab = "Appearance") {
     content = group(
       "Private by design",
       "DevKit has no analytics, accounts or external runtime services.",
-      '<div class="note">Only your preferences, favorite tool IDs and recent tool IDs are saved. Editor text stays in memory for this tab and is removed on reload. Password tool input is never retained. All tools process locally. Offline installation is added in Phase 5.</div>' +
+      '<div class="note">Only your preferences, favorite tool IDs and recent tool IDs are saved. Editor text stays in memory for this tab and is removed on reload. Password tool input is never retained. All tools process locally. Offline support caches application files only, never your inputs or results.</div>' +
         row(
           "Session inputs",
           "Remove all editor drafts held in this tab.",

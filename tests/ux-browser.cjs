@@ -80,6 +80,7 @@ const assert = require("node:assert/strict");
     () =>
       document.querySelector("#tool-result-status").dataset.state === "success",
   );
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "screenshots/mobile-tool.png",
     fullPage: true,

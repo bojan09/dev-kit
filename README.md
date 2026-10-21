@@ -1,57 +1,87 @@
 # DevKit
 
-Your everyday, privacy-first developer toolkit. Free, static and built with HTML, CSS and native JavaScript modules. No runtime dependencies, accounts, telemetry or remote fonts.
+Your everyday developer toolkit. **Free, privacy-first and browser-local.** Built with semantic HTML, CSS and native JavaScript modules. No runtime dependencies, backend, accounts, tracking or remote fonts.
 
-## Current status
+## Version 1.0.0
 
-**v0.1.0 — Phase 1 foundation.** Dashboard, eight workspace previews, hash routing, favorites/recent tools, command palette and settings are implemented. Utility execution, copy and export are disabled until Phases 2–3. PWA installation and offline caching are planned for Phase 5. This release is not deployed or offline-certified.
+All eight utilities are functional. The responsive interface follows the supplied DevKit design: navy surfaces, violet accent, searchable cards, sidebar/rail/mobile navigation, split workspaces, command palette, settings and coherent light mode.
+
+| Tool               | What it does                                                              |
+| ------------------ | ------------------------------------------------------------------------- |
+| JSON Studio        | Validate, format with 2/4 spaces, minify, copy and JSON export            |
+| Base64             | Encode Unicode as UTF-8 standard Base64; strict decoding                  |
+| UUID Generator     | Secure v4 UUIDs, 1–100 at a time; copy all or individual                  |
+| Timestamp          | Explicit Unix seconds/milliseconds or zoned ISO; UTC and local output     |
+| URL Toolkit        | Component encode/decode; absolute URL and duplicate query-pair inspection |
+| Text Toolkit       | Case transforms, trim/normalize, sort/deduplicate; code-point counts      |
+| Password Generator | Web Crypto, 8–128 characters, category controls, explicit copy            |
+| Regex Tester       | Disposable worker, captures, safe highlights, bounds and 750 ms timeout   |
 
 ## Run locally
 
-Requires Node.js 22 or newer for the development server and tests. The application itself runs in a modern browser with no build.
+Node.js 22+ is needed only for development tools. The browser application has no build or server-runtime requirement.
 
 ```sh
-npm install
+npm ci
 npm start
 ```
 
-Open http://127.0.0.1:4173. Any static HTTP server can serve the project root. Use HTTP rather than file:// for native modules.
+Open http://127.0.0.1:4173. Native modules need HTTP; do not open index.html through file://.
 
-## Checks
+## Verify
 
 ```sh
 npm test
 npm run test:browser
+npm run test:tools
+npm run test:security
+npm run test:ux
+npm run test:pwa
+npm run test:a11y
 npm run format:check
+npm run audit:utilities
+npm run audit:performance
 ```
 
-Browser tests use development-only Playwright. Run npx playwright install chromium if a browser is missing. On Windows the suite uses installed Chrome when present. Set BROWSER_PATH to use a different Chromium executable; optionally PLAYWRIGHT_PATH selects another Playwright package. Start the server before browser tests. Screenshots are written to screenshots/.
+Start the local server before browser checks. Test tooling is development-only. Browser scripts use installed Chrome on this Windows environment; set BROWSER_PATH to another Chromium executable. The shell suite can also use bundled Playwright Chromium after npx playwright install chromium. npm run test:edge runs the full five-suite browser matrix in installed Windows Edge. Lighthouse may need permission to attach to its local Chrome debugging port.
 
-## Routes and shortcuts
+## Offline and installation
 
-- /#/ dashboard; /#/all all tools; /#/favorites and /#/recent filtered collections.
+After one completed visit over HTTPS or localhost, a service worker caches **only a versioned allowlist of static app files**. All eight tools, including regex workers, can then work offline. Input/output text and arbitrary requests are never cached. Cache names and cleanup are scoped to the installation path, so sibling deployments are preserved.
+
+Use a supported browser’s install menu or the Install DevKit button in About when available. Installation UI varies by browser; native OS installation was not exercised in headless tests. About displays actual offline readiness. Updates show a banner and require an explicit reload; unsaved session drafts are cleared by reload. You can defer the update and check again in About.
+
+After changing runtime files, rebuild the shell inventory:
+
+```sh
+npm run format
+npm run build:sw
+```
+
+Commit the regenerated sw.js with the release. Its content hash changes when any runtime asset changes. Publish the root files described in [deployment instructions](docs/DEPLOYMENT.md); no bundler or paid service is required.
+
+## Preferences, privacy and limits
+
+Only validated versioned preferences, favorite IDs and recent tool IDs persist. Non-secret input/output drafts and tool options stay in this tab’s memory and survive in-app navigation; reload clears them. Passwords never enter draft/history storage, are not downloaded by the app, and are cleared when leaving their workspace. Copy is explicit; clipboard contents remain outside DevKit’s control.
+
+Settings include light/dark/system, six accents, density, motion, editor size/tab width/wrap/line numbers, JSON indent, timestamp units, sidebar and clearing controls. OS reduced motion takes priority. Optional freeform accent colors are omitted to keep preset contrast predictable.
+
+Ordinary hosting requests can appear in hosting access logs. Extensions, compromised devices and browser vulnerabilities are outside app control. Read [privacy](docs/PRIVACY.md) and [tool limitations](docs/LIMITATIONS.md).
+
+## Routes and keyboard
+
+- /#/ dashboard; /#/all all tools; /#/favorites and /#/recent collections.
 - /#/tools/{id}: json, base64, uuid, timestamp, url, text, password, regex.
-- /#/settings preferences; /#/about release and privacy information.
-- Ctrl/Cmd+K: command palette. Arrows select, Enter opens, Escape closes and restores focus. Tab cycles within the dialog.
-- Slash: dashboard tool search outside editable fields. Settings tabs support arrows, Home and End.
+- /#/settings and /#/about.
+- Ctrl/Cmd+K: command palette; arrows select; Enter opens; Escape closes and restores focus; Tab stays inside it.
+- Ctrl/Cmd+Enter: run the current tool.
+- Slash: dashboard search outside editable fields.
+- Settings tabs: arrows, Home and End. Mobile menu: Escape closes and restores focus.
 
-## Privacy and limitations
+Hash routes support static hosting, deep links and browser back/forward without server rewrites.
 
-Only validated, versioned preferences and favorite/recent tool IDs are stored in localStorage. Non-secret preview drafts stay in tab memory, survive in-app navigation and disappear on reload. Password input is disabled and password tools are excluded from recents. Clear session inputs and reset preferences from Settings → Privacy.
+## Evidence and source map
 
-The app sends no editor input or output to a server. Hosting involves ordinary static-file requests; host logs, browser extensions, device security and clipboard contents are outside the app’s control. Preview editors are for non-secret drafts only.
+See [phase report](docs/PHASE_REPORT.md), [test matrix](docs/TEST_PLAN.md), [final audit](docs/FINAL_AUDIT.md), screenshots/ and docs/audits/. The supplied prompt and design remain in docs/reference/. No visual pixel-parity or physical-device/screen-reader certification is claimed.
 
-Preferences include dark/light/system, six accent presets, density, motion, sidebar state and editor/tool defaults. Line numbers and JSON/timestamp defaults are saved for future tool implementations. The optional custom accent picker is not included. OS reduced motion always overrides animation.
-
-## Structure
-
-- index.html and assets/icons/: semantic entry and local branding.
-- css/: tokens, base, layout, components, themes and motion.
-- js/: registry, router, settings, preferences, command palette, icons and orchestration.
-- tests/: Node tests and real Chromium smoke checks.
-- scripts/serve.js: development server, not a production backend.
-- docs/reference/: supplied specification and design; other docs contain evidence and decisions.
-
-## Static hosting
-
-Publish the project root to a static host. Hash routes need no server rewrites. GitHub Pages can serve a selected branch root through Settings → Pages. This phase pushes source only; deployment settings are unchanged. Later secure APIs and service workers require HTTPS or localhost.
+Runtime: index.html, manifest.webmanifest, sw.js, assets/icons/, css/ and js/. Development: scripts/, tests/ and package files. Documentation and screenshots do not ship as runtime dependencies. GitHub source commits are pushed to master; enabling live hosting is a separate repository setting and is unverified here.

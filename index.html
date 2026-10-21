@@ -15,6 +15,8 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
     <title>DevKit — Your everyday developer toolkit</title>
     <link rel="icon" href="assets/icons/logo.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="css/tokens.css" />
@@ -54,6 +56,20 @@
         ><span>DevKit command menu</span>
       </div>
     </dialog>
+    <aside
+      id="update-notice"
+      class="update-notice"
+      aria-label="Application update"
+      hidden
+    >
+      <div>
+        <strong>A fresh DevKit is ready.</strong>
+        <p>Updating reloads the app and clears unsaved session drafts.</p>
+      </div>
+      <button class="button primary" data-pwa="update">
+        Update &amp; reload</button
+      ><button class="button" data-pwa="later">Later</button>
+    </aside>
     <div id="status" class="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

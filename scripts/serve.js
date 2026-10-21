@@ -8,6 +8,7 @@ const mime = {
   ".css": "text/css",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  ".webmanifest": "application/manifest+json",
   ".md": "text/plain",
 };
 http

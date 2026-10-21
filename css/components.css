@@ -1116,3 +1116,45 @@ main h1:focus {
   min-height: 24px;
   min-width: 28px;
 }
+
+.update-notice {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  width: max-content;
+  max-width: calc(100% - 32px);
+}
+.update-notice strong {
+  font-size: 13px;
+}
+.update-notice p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+@media (max-width: 767px) {
+  .update-notice {
+    bottom: 82px;
+    flex-wrap: wrap;
+    width: calc(100% - 32px);
+  }
+  .update-notice > div {
+    width: 100%;
+  }
+}

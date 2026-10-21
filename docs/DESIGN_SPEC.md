@@ -19,3 +19,7 @@ Reduced motion respects OS and app settings. Tablet/mobile preserve access throu
 ## Phase 1 limits
 
 Utility primary actions are disabled and clearly labeled. Line-number display, JSON indentation and timestamp preferences are saved for future implementations. No worker, clipboard, export, manifest or service worker ships in Phase 1. Optional custom accent support is omitted.
+
+## Final release additions
+
+All eight workspaces are functional. Shared editors include line gutters, tool-specific actions/options, explicit copy/export, state feedback and non-secret tab-memory drafts. Password values are ephemeral and regex results are worker-bounded safe text. Local install/offline/update components follow the same tokens. The measured light-theme muted token is #59677E for small-text contrast, with darker accent-dependent text. Screenshot captures scroll to the top to avoid full-page sticky-element artifacts. See FINAL_AUDIT.md for final visual/keyboard/performance evidence and explicit limits.

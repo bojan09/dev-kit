@@ -23,3 +23,10 @@
 - Refined reference fidelity, tablet hero, editor alignment and mobile controls.
 - Fixed drawer focus, tool navigation state and palette/settings synchronization.
 - Corrected measured light-theme contrast; 47 automated accessibility scenarios pass.
+
+## 1.0.0 — 2026-10-21
+
+- Install manifest, local icons, offline static-shell cache and explicit update flow.
+- Isolated caches by deployment scope and bounded aggregate regex capture output after independent audit.
+- Full Chrome/Edge release matrix, accessibility, utility timing and Lighthouse reports.
+- Complete privacy, tool limits, deployment and final verification documentation.

@@ -92,6 +92,43 @@ const assert = require("node:assert/strict");
     2,
     "zero-width Unicode matches",
   );
+  await page.getByLabel("Regular expression").fill("(?=(.*))");
+  await page.getByLabel("Regex flags").fill("g");
+  await page.getByLabel("Input", { exact: true }).fill("a".repeat(50000));
+  await run();
+  eq(
+    await page.locator("#tool-result-status").getAttribute("data-state"),
+    "error",
+    "aggregate capture budget",
+  );
+  await page.evaluate(() => {
+    const Original = window.Worker;
+    window.__activeRegex = 0;
+    window.Worker = class extends Original {
+      constructor(...args) {
+        super(...args);
+        window.__activeRegex++;
+        this.counted = true;
+      }
+      terminate() {
+        if (this.counted) {
+          window.__activeRegex--;
+          this.counted = false;
+        }
+        super.terminate();
+      }
+    };
+  });
+  await page.getByLabel("Regular expression").fill("(a+)+$");
+  await page.getByLabel("Input", { exact: true }).fill("a".repeat(20000) + "!");
+  await page.locator("#tool-run").click();
+  await page.waitForFunction(() => window.__activeRegex === 1);
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  eq(
+    await page.evaluate(() => window.__activeRegex),
+    0,
+    "reset immediately terminates worker",
+  );
   await page.getByLabel("Regular expression").fill("(a+)+$");
   await page.getByLabel("Regex flags").fill("g");
   await page.getByLabel("Input", { exact: true }).fill("a".repeat(20000) + "!");

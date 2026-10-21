@@ -84,3 +84,38 @@ Verification: 10 targeted UI/UX browser assertions, 99 shell/responsive assertio
 Ruling: adjusted the supplied light muted token from #64748B to #59677E and darkened accent-dependent link/selected navigation tones after measured contrast failures (4.28–4.48:1 for small muted text). Accessibility takes precedence under the master specification. The cost is a slightly darker secondary tone than the concept image.
 
 Keyboard paths were exercised in a real browser; mobile/tablet are viewport emulations. No claim of physical touch-device or screen-reader certification is made. Screenshots show actual app output, including a populated JSON workspace. Ready for the authorized final PWA/release/audit phase.
+
+## Phase 5 — PWA, final QA and release
+
+Version 1.0.0 completed 2026-10-21. Added manifest, local 192/512 PNG/maskable icons, subpath-safe registration, content-hashed static-shell allowlist (34 assets), scope-isolated caches, offline status, install affordance and explicit update/reload with unsaved-draft warning. No input/output, arbitrary request or query-bearing request is cached. Blocked service-worker registration is reported honestly across navigation.
+
+Changed: manifest.webmanifest, sw.js, assets/icons/*.png, js/pwa.js, scripts/build-sw.js; release metadata/about/privacy; update component; PWA/Edge/audit tests; final README, deployment, limitations, privacy, test matrix and audit reports.
+
+### Final acceptance and results
+
+- [x] All eight utilities usable with validation, errors, reset, explicit copy and supported download. Password download intentionally omitted.
+- [x] Both reported Phase 1 minor defects fixed and regression tested.
+- [x] 16 deterministic tests passed.
+- [x] Chrome and Edge: 99 shell/responsive assertions + 24 core-tool checks + 16 security checks + 10 UI/UX paths + 19 PWA checks, per browser.
+- [x] All 14 routes at five required viewports; no horizontal document overflow or unhandled page exceptions in the shell suite.
+- [x] 47 axe accessibility scenarios, zero violations after correction.
+- [x] Offline reload/deep links and all eight tools, including regex workers, under /dev-kit/.
+- [x] Update activation/reload, same-scope old-cache cleanup, sibling/unrelated cache preservation and cached-data privacy.
+- [x] Final independent source/security review findings fixed with failing-then-passing regression checks.
+- [x] Reference-based screenshot comparison, actual populated JSON workspace, light/dark/tablet/mobile evidence retained.
+- [x] Performance and UI/UX audit documented; source/doc formatting and release lockfile checked.
+- [x] Phase 2, 3, 4 and final Phase 5 commits push to master only.
+
+### Final performance evidence
+
+Lighthouse version 13.5.0, localhost installed Chrome, simulated settings saved in reports: mobile performance 98, desktop 100; accessibility and best practices 100/100 and 100/100. Mobile LCP 2.2 s; desktop LCP 0.5 s. CLS 0 on both; mobile total blocking time 10 ms, desktop 0 ms. SEO 91; live-host indexing/robots configuration was not part of this local UI/performance audit.
+
+Runtime shell: 169,153 raw bytes across 34 assets; 77,989 theoretical gzip bytes (not a claim about host compression). Unthrottled browser samples: JSON 2.7 ms for 278,901 code units; Base64 6.1 ms for 140,000; text 3.9 ms for 208,893. Single-run lab values, not production/hardware guarantees.
+
+### Final review rulings and residual limits
+
+Important findings were aggregate regex capture memory and cross-scope cache deletion. Both reproduced with failing tests, then passed with a 200,000-character worker result budget and scope-based cache prefixes. Pending regex work now aborts on reset/options/examples. The internal truncated flag at exactly 500 matches is retained as a threshold indicator; the UI accurately says Match limit reached, without asserting omitted matches. Cost: consumers must interpret it as a threshold, as documented in FINAL_AUDIT.md.
+
+Lighthouse’s first restricted-process attempt could not attach to the local debugging port; the same audit succeeded with authorized execution outside that restriction. No test or audit result was invented.
+
+Unverified: native OS install acceptance, physical mobile touch, screen-reader walkthrough, Firefox/WebKit and live GitHub Pages deployment. The project is ready for free static hosting; exact steps are in DEPLOYMENT.md. Source pushes do not enable hosting. No unresolved important source-review finding remains.

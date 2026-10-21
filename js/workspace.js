@@ -51,7 +51,7 @@ const config = {
   },
   regex: {
     actions: [["test", "Test expression"]],
-    help: "Native JavaScript regex runs in a disposable worker, terminated after 750 ms. Limits: 500 pattern characters, 50,000 sample characters, 500 matches. Zero-width matches are shown as a thin marker. Pathological expressions can still briefly consume CPU or memory before termination. Match offsets use UTF-16 indices.",
+    help: "Native JavaScript regex runs in a disposable worker, terminated after 750 ms. Limits: 500 pattern characters, 50,000 sample characters, 500 matches and 200,000 aggregate match/capture characters. Zero-width matches are shown as a thin marker. Pathological expressions can still briefly consume CPU or memory before termination. Match offsets use UTF-16 indices.",
     example: "Hello DevKit! Hello world!",
   },
 };
@@ -408,6 +408,7 @@ export function mountWorkspace(
   options.addEventListener(
     "change",
     () => {
+      runAbort?.abort();
       working++;
       clearResult();
       message("Options changed · run to update output", "idle");
@@ -439,6 +440,7 @@ export function mountWorkspace(
             notify("Download started");
           }
           if (task === "reset") {
+            runAbort?.abort();
             working++;
             input.value = "";
             clearResult();
@@ -447,6 +449,7 @@ export function mountWorkspace(
             notify("Workspace reset");
           }
           if (task === "example") {
+            runAbort?.abort();
             input.value = config[tool.id].example;
             if (tool.id === "timestamp" && opts().unit === "milliseconds")
               input.value = "1700000000000";

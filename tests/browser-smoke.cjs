@@ -233,6 +233,7 @@ const fs = require("node:fs/promises");
         false,
         "mobile hero hides badge",
       );
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
       path: "screenshots/dashboard-" + width + "-dark.png",
       fullPage: true,
@@ -241,6 +242,7 @@ const fs = require("node:fs/promises");
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("http://127.0.0.1:4173/#/settings");
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "screenshots/settings-dark.png",
     fullPage: true,
@@ -248,12 +250,14 @@ const fs = require("node:fs/promises");
   });
   await page.getByRole("button", { name: "Light", exact: true }).click();
   await page.goto("http://127.0.0.1:4173/#/");
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "screenshots/desktop-light.png",
     fullPage: true,
     animations: "disabled",
   });
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "screenshots/mobile-light.png",
     fullPage: true,
@@ -279,12 +283,14 @@ const fs = require("node:fs/promises");
     () =>
       document.querySelector("#tool-result-status").dataset.state === "success",
   );
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "screenshots/workspace-dark.png",
     fullPage: true,
     animations: "disabled",
   });
   await page.keyboard.press("Control+k");
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "screenshots/command-palette.png",
     fullPage: true,

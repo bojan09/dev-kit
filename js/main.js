@@ -1,3 +1,4 @@
+import { setupPwa } from "./pwa.js";
 import { workspaceMarkup, mountWorkspace } from "./workspace.js";
 import { tools, searchTools } from "./tool-registry.js";
 import { resolveRoute } from "./router.js";
@@ -116,7 +117,7 @@ function render(focus = false) {
     navigation.slice(4).map(navItem).join("") +
     '</nav><div class="sidebar-bottom"><div class="local-note">' +
     icon("shield") +
-    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v0.4.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
+    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v1.0.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
     (prefs.sidebarCollapsed ? "Expand" : "Collapse") +
     ' sidebar">' +
     icon("collapse") +
@@ -161,6 +162,7 @@ function render(focus = false) {
       saveState: (state) => drafts.set(current.id, state),
       notify,
     });
+  window.dispatchEvent(new Event("devkit:render"));
   if (focus) document.querySelector("main h1")?.focus({ preventScroll: true });
 }
 function card(t) {
@@ -297,7 +299,7 @@ function pageMarkup() {
   if (route.page === "tool") return workspace();
   if (route.page === "about")
     return (
-      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Generated passwords are cleared when you leave their workspace and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Current release</h2><p>Version 0.4.0 · All eight utilities are functional. Passwords use Web Crypto; regular expressions run in time-limited disposable workers. Installability and offline caching are planned for Phase 5 and are not available in this release.</p><a class="button" href="#/settings">Privacy & preferences ' +
+      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Generated passwords are cleared when you leave their workspace and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Install &amp; offline</h2><p id="offline-state" role="status">Preparing offline files…</p><p>Installation is available through supported browser menus. Offline use requires a completed first visit. Cached files contain the application only, never your inputs or results. Updates ask before reloading and clearing session drafts.</p><div class="about-actions"><button class="button primary" data-pwa="install" hidden>Install DevKit</button><button class="button" data-pwa="check">Check for updates</button></div><h2>Current release</h2><p>Version 1.0.0 · All eight utilities are functional. Passwords use Web Crypto; regular expressions run in time-limited disposable workers. The application can cache its static files for offline use after a successful first visit over HTTPS or localhost.</p><a class="button" href="#/settings">Privacy & preferences ' +
       icon("arrow") +
       "</a></section></div>"
     );
@@ -543,4 +545,5 @@ if (route.page === "tool" && route.id !== "password")
       8,
     ),
   });
+setupPwa(notify);
 render();

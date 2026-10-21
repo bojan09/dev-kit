@@ -1,0 +1,29 @@
+{
+  "environment": "Headless installed Chrome, localhost, unthrottled utility samples; single runs, not hardware guarantees",
+  "utilities": [
+    {
+      "tool": "json",
+      "inputCodeUnits": 278901,
+      "outputCodeUnits": 538909,
+      "durationMs": 2.7
+    },
+    {
+      "tool": "base64",
+      "inputCodeUnits": 140000,
+      "outputCodeUnits": 240000,
+      "durationMs": 6.1
+    },
+    {
+      "tool": "text",
+      "inputCodeUnits": 208893,
+      "outputCodeUnits": 208893,
+      "durationMs": 3.9
+    }
+  ],
+  "shell": {
+    "assets": 34,
+    "rawBytes": 169153,
+    "theoreticalGzipBytes": 77989
+  },
+  "runtimeDependencies": 0
+}

@@ -1,3 +1,4 @@
 docs/reference/
 screenshots/
 package-lock.json
+docs/audits/*.html
