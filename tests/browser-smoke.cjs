@@ -273,6 +273,12 @@ const fs = require("node:fs/promises");
   await page.getByRole("button", { name: "Dark", exact: true }).click();
   await page.getByRole("button", { name: "violet accent" }).click();
   await page.goto("http://127.0.0.1:4173/#/tools/json");
+  await page.getByRole("button", { name: "Load example" }).click();
+  await page.getByRole("button", { name: "Format", exact: true }).click();
+  await page.waitForFunction(
+    () =>
+      document.querySelector("#tool-result-status").dataset.state === "success",
+  );
   await page.screenshot({
     path: "screenshots/workspace-dark.png",
     fullPage: true,

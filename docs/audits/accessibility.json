@@ -1,0 +1,240 @@
+{
+  "engine": "axe-core",
+  "scenarios": 47,
+  "results": [
+    {
+      "theme": "dark",
+      "route": "/",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/json",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/base64",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/uuid",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/timestamp",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/url",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/text",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/password",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/tools/regex",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/settings",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "/about",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/accent/violet",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/accent/ocean",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/accent/emerald",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/accent/rose",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/accent/amber",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/accent/indigo",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/Editor",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/Tools",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/Workspace",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/Privacy",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/Accessibility",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "route": "settings/Shortcuts",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/json",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/base64",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/uuid",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/timestamp",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/url",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/text",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/password",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/tools/regex",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/settings",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "/about",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/accent/violet",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/accent/ocean",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/accent/emerald",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/accent/rose",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/accent/amber",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/accent/indigo",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/Editor",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/Tools",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/Workspace",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/Privacy",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/Accessibility",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "route": "settings/Shortcuts",
+      "violations": []
+    },
+    {
+      "route": "palette",
+      "violations": []
+    }
+  ]
+}

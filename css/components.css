@@ -1041,3 +1041,78 @@ main h1:focus {
 [hidden] {
   display: none !important;
 }
+
+.editor-head {
+  min-height: 50px;
+}
+.tool-card .card-arrow {
+  margin-top: auto;
+  padding-top: 8px;
+  box-sizing: content-box;
+}
+.workspace-actions .icon-button[aria-pressed="true"] {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 50%, var(--border));
+}
+@media (max-width: 1023px) {
+  .hero-privacy {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .tool-card {
+    min-height: 166px;
+  }
+  .topbar .icon-button,
+  .topbar .top-search {
+    width: 40px;
+    height: 40px;
+  }
+  .editor-button {
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .workspace-actions .button,
+  .tool-options .button,
+  .tool-options select,
+  .tool-options input[type="number"] {
+    min-height: 40px;
+  }
+  .favorite-button {
+    min-height: 32px;
+    min-width: 32px;
+  }
+  .settings-tabs button {
+    min-height: 40px;
+  }
+  .tool-option.regex-pattern {
+    width: 100%;
+    flex: auto;
+  }
+  .password-categories {
+    gap: 12px;
+  }
+  .password-categories label {
+    min-height: 36px;
+  }
+}
+
+.editor-head {
+  height: 52px;
+}
+@media (max-width: 767px) {
+  .editor-head {
+    height: 56px;
+  }
+}
+
+.section-head a,
+.text-button,
+.prose a,
+.bottom-nav a.active {
+  color: var(--accent-text);
+}
+.key {
+  min-height: 24px;
+  min-width: 28px;
+}

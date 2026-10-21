@@ -17,3 +17,9 @@
 
 - Secure password generation with category controls and no secret history.
 - Regex workers, safe match highlighting/captures, size limits, timeout and recovery.
+
+## 0.4.0 — 2026-10-21
+
+- Refined reference fidelity, tablet hero, editor alignment and mobile controls.
+- Fixed drawer focus, tool navigation state and palette/settings synchronization.
+- Corrected measured light-theme contrast; 47 automated accessibility scenarios pass.

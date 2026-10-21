@@ -162,7 +162,7 @@ export function settingsMarkup(p, tab = "Appearance") {
   if (tab === "Editor")
     content = group(
       "Editor preferences",
-      "These defaults will apply to the utilities as they launch.",
+      "Set your reading and formatting preferences.",
       row(
         "Font size",
         "Choose a comfortable reading size.",
@@ -198,7 +198,7 @@ export function settingsMarkup(p, tab = "Appearance") {
         ) +
         row(
           "Line numbers",
-          "Saved for the full editors in Phase 2.",
+          "Show logical line numbers in your editors.",
           toggle("lineNumbers", "Show line numbers", p),
         ),
     );
@@ -208,7 +208,7 @@ export function settingsMarkup(p, tab = "Appearance") {
       "Set once. Get back to building.",
       row(
         "JSON indentation",
-        "Default formatting for JSON Studio in Phase 2.",
+        "Default formatting for JSON Studio.",
         select(
           "jsonIndent",
           [
@@ -221,7 +221,7 @@ export function settingsMarkup(p, tab = "Appearance") {
       ) +
         row(
           "Timestamp units",
-          "Explicit units for timestamp conversion in Phase 2.",
+          "Default explicit units for timestamp conversion.",
           select(
             "timestampUnit",
             [
@@ -258,7 +258,7 @@ export function settingsMarkup(p, tab = "Appearance") {
     content = group(
       "Private by design",
       "DevKit has no analytics, accounts or external runtime services.",
-      '<div class="note">Only your preferences, favorite tool IDs and recent tool IDs are saved. Editor text stays in memory for this tab and is removed on reload. Password tool input is never retained. Utilities begin in Phase 2; offline installation arrives in Phase 5.</div>' +
+      '<div class="note">Only your preferences, favorite tool IDs and recent tool IDs are saved. Editor text stays in memory for this tab and is removed on reload. Password tool input is never retained. All tools process locally. Offline installation is added in Phase 5.</div>' +
         row(
           "Session inputs",
           "Remove all editor drafts held in this tab.",
@@ -296,6 +296,7 @@ export function settingsMarkup(p, tab = "Appearance") {
       '<div class="shortcut-list">' +
         [
           ["Open command palette", "Ctrl / ⌘ K"],
+          ["Run current tool", "Ctrl / ⌘ Enter"],
           ["Focus dashboard search", "/"],
           ["Move through palette results", "↑ / ↓"],
           ["Open selected result", "Enter"],
@@ -311,7 +312,7 @@ export function settingsMarkup(p, tab = "Appearance") {
               "</kbd></div>",
           )
           .join("") +
-        '</div><div class="note">Shortcuts do not intercept text editing. Run-current-tool shortcuts arrive with tool execution.</div>',
+        '</div><div class="note">Shortcuts do not intercept text editing. Ctrl/Cmd+Enter runs the current tool.</div>',
     );
   return (
     '<div class="page-heading"><p class="eyebrow">YOUR WORKSPACE, YOUR WAY</p><h1 tabindex="-1">Settings</h1><p>Small details. A better everyday experience.</p></div><div class="settings-layout"><div class="settings-tabs" role="tablist" aria-label="Settings sections" aria-orientation="vertical">' +

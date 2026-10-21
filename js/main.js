@@ -32,15 +32,16 @@ function logo() {
   return '<span class="logo" aria-hidden="true"><span>›_</span></span>';
 }
 function navItem([id, path, glyph, label]) {
+  const selected = route.page === id || (route.page === "tool" && id === "all");
   return (
     '<a class="nav-item ' +
-    (route.page === id ? "active" : "") +
+    (selected ? "active" : "") +
     '" href="#' +
     path +
     '" aria-label="' +
     label +
     '" ' +
-    (route.page === id ? 'aria-current="page"' : "") +
+    (selected ? 'aria-current="page"' : "") +
     ">" +
     icon(glyph) +
     '<span class="nav-text">' +
@@ -60,6 +61,14 @@ function notify(message) {
 function updatePreferences(patch) {
   prefs = validatePreferences({ ...prefs, ...patch });
   applyPreferences(prefs);
+  document
+    .querySelectorAll("button[data-pref]")
+    .forEach((el) =>
+      el.setAttribute(
+        "aria-pressed",
+        String(el.dataset.value === String(prefs[el.dataset.pref])),
+      ),
+    );
   if (!savePreferences(prefs))
     notify("Preferences apply for this tab. Browser storage is unavailable.");
 }
@@ -107,7 +116,7 @@ function render(focus = false) {
     navigation.slice(4).map(navItem).join("") +
     '</nav><div class="sidebar-bottom"><div class="local-note">' +
     icon("shield") +
-    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v0.3.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
+    '<div><strong>A little peace of mind.</strong><span class="muted">Your work stays in your browser.</span></div></div><div class="sidebar-footer"><span>DEVKIT <span class="muted">v0.4.0</span></span><button class="icon-button" data-action="collapse" aria-label="' +
     (prefs.sidebarCollapsed ? "Expand" : "Collapse") +
     ' sidebar">' +
     icon("collapse") +
@@ -288,7 +297,7 @@ function pageMarkup() {
   if (route.page === "tool") return workspace();
   if (route.page === "about")
     return (
-      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Generated passwords are cleared when you leave their workspace and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Current release</h2><p>Version 0.3.0 · All eight utilities are functional. Passwords use Web Crypto; regular expressions run in time-limited disposable workers. Installability and offline caching are planned for Phase 5 and are not available in this release.</p><a class="button" href="#/settings">Privacy & preferences ' +
+      '<div class="prose"><div class="page-heading"><p class="eyebrow">SMALL TOOLS. THOUGHTFULLY MADE.</p><h1 tabindex="-1">Your work. Your browser.</h1><p>DevKit is a free, privacy-first developer toolkit.</p></div><section class="settings-group"><h2>Less friction, more flow</h2><p>Everyday developer tasks deserve a simple home. DevKit brings eight focused utilities into one calm workspace, without accounts, subscriptions or upsells.</p><h2>Privacy is a default</h2><p>This application uses no analytics, tracking scripts, external fonts or runtime APIs. Only preferences, favorite IDs and recent tool IDs are stored in this browser. Workspace drafts stay in tab memory and disappear on reload. Generated passwords are cleared when you leave their workspace and password tools are excluded from recent history.</p><p>Your hosting provider may receive normal requests for application files and keep access logs. Browser extensions, your device and clipboard are outside DevKit’s control.</p><h2>Current release</h2><p>Version 0.4.0 · All eight utilities are functional. Passwords use Web Crypto; regular expressions run in time-limited disposable workers. Installability and offline caching are planned for Phase 5 and are not available in this release.</p><a class="button" href="#/settings">Privacy & preferences ' +
       icon("arrow") +
       "</a></section></div>"
     );
@@ -387,6 +396,8 @@ function bind() {
           "aria-label",
           drawer.hidden ? "Open navigation" : "Close navigation",
         );
+        document.querySelector("main").inert = !drawer.hidden;
+        document.querySelector(".bottom-nav").inert = !drawer.hidden;
         if (!drawer.hidden) drawer.querySelector("a").focus();
       }
       if (action === "reset-draft") {
@@ -497,8 +508,24 @@ matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
 });
 document.addEventListener("keydown", (e) => {
   const drawer = document.querySelector("#mobile-drawer");
+  if (drawer && !drawer.hidden && e.key === "Tab") {
+    const nodes = [
+      document.querySelector('[data-action="menu"]'),
+      ...drawer.querySelectorAll("a"),
+    ];
+    const i = nodes.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) {
+      e.preventDefault();
+      nodes.at(-1).focus();
+    } else if (!e.shiftKey && i === nodes.length - 1) {
+      e.preventDefault();
+      nodes[0].focus();
+    }
+  }
   if (e.key === "Escape" && drawer && !drawer.hidden) {
     drawer.hidden = true;
+    document.querySelector("main").inert = false;
+    document.querySelector(".bottom-nav").inert = false;
     const b = document.querySelector('[data-action="menu"]');
     b.setAttribute("aria-expanded", "false");
     b.setAttribute("aria-label", "Open navigation");

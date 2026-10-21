@@ -74,3 +74,13 @@ Changed: password.js, regex.js, regex-engine.js, regex-worker.js; workspace life
 Verification: npm test — 15/15, including rejection sampling, category constraints, zero-width/capture cases and bounds. npm run test:security — 14 real browser checks, including a 20,001-character pathological regex terminated within the 4-second test ceiling, successful next-worker recovery, injection text, no stored password and cleared password after navigation. Core utility browser regression suite retained.
 
 Residual risk: a pathological regex can consume worker CPU/memory before termination; termination is mitigation, not a resource-use guarantee. JavaScript engine bugs, extensions, compromised devices and clipboard access remain outside application control. Secure APIs require HTTPS or localhost. Ready for the authorized Phase 4 UI/UX and accessibility audit.
+
+## Phase 4 — Design refinement and accessibility
+
+Completed the reference comparison at required responsive sizes and both themes. Refined aligned input/output headers, compact tablet hero, mobile tool actions, larger touch controls, card arrow alignment, active All Tools navigation in workspaces, sidebar transition and editor readability. Fixed covered-content keyboard focus behind the mobile drawer and synchronized theme button state after palette actions. Removed stale future-phase copy from functional settings.
+
+Verification: 10 targeted UI/UX browser assertions, 99 shell/responsive assertions, 24 core tool browser checks, 14 security browser checks and 15 deterministic tests. Axe WCAG A/AA checks across 47 tool/settings/theme/accent/palette scenarios now return zero violations. Initial audit found contrast violations in 24 scenarios; before/after JSON evidence is in docs/audits/.
+
+Ruling: adjusted the supplied light muted token from #64748B to #59677E and darkened accent-dependent link/selected navigation tones after measured contrast failures (4.28–4.48:1 for small muted text). Accessibility takes precedence under the master specification. The cost is a slightly darker secondary tone than the concept image.
+
+Keyboard paths were exercised in a real browser; mobile/tablet are viewport emulations. No claim of physical touch-device or screen-reader certification is made. Screenshots show actual app output, including a populated JSON workspace. Ready for the authorized final PWA/release/audit phase.

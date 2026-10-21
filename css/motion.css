@@ -71,3 +71,7 @@ dialog[open] {
     transform: none;
   }
 }
+
+.app-shell {
+  transition: grid-template-columns var(--sidebar-time) ease;
+}

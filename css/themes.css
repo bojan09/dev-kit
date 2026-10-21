@@ -4,7 +4,7 @@
   --surface: #fff;
   --elevated: #f0f3fa;
   --text: #111827;
-  --muted: #64748b;
+  --muted: #59677e;
   --border: #dce2ed;
   --success: #087f5b;
   --error: #be123c;
@@ -12,7 +12,7 @@
   --shadow: 0 16px 50px #22325512;
 }
 [data-theme="light"] .nav-item.active {
-  color: color-mix(in srgb, var(--accent) 70%, #111827);
+  color: color-mix(in srgb, var(--accent) 55%, #111827);
   background: color-mix(in srgb, var(--accent) 12%, white);
 }
 [data-theme="light"] .nav-item.active .icon {
@@ -43,4 +43,8 @@
 }
 [data-density="spacious"] .tool-grid {
   gap: 20px;
+}
+
+[data-theme="light"] {
+  --accent-text: color-mix(in srgb, var(--accent) 50%, #111827);
 }
